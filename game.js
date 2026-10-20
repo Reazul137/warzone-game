@@ -267,6 +267,62 @@
     document.getElementById("room-code-panel").hidden = !code;
   }
 
+  function extractRoomCode(value) {
+    const text = value.trim().toUpperCase();
+    try {
+      const url = new URL(text);
+      const room = url.searchParams.get("room");
+      if (room) return room.toUpperCase();
+    } catch {}
+    const match = text.match(/(?:^|[^A-Z0-9])([A-HJ-NP-Z2-9]{6})(?:$|[^A-Z0-9])/);
+    return match ? match[1] : text.replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  }
+
+  function selectRoomCode() {
+    const code = document.getElementById("room-code");
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(code);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  async function copyForFriend(text, description) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setConnectionStatus(`${description} COPIED. SEND IT TO YOUR FRIEND.`);
+      return;
+    } catch (error) {
+      console.warn("Clipboard API unavailable; trying manual copy fallback.", error);
+    }
+
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.left = "-9999px";
+    document.body.appendChild(field);
+    field.select();
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } finally {
+      field.remove();
+    }
+    if (copied) {
+      setConnectionStatus(`${description} COPIED. SEND IT TO YOUR FRIEND.`);
+    } else {
+      const panel = document.getElementById("manual-share-panel");
+      const input = document.getElementById("manual-share-input");
+      document.getElementById("manual-share-label").textContent = `AUTO-COPY BLOCKED. SELECT THIS ${description} AND COPY IT:`;
+      input.value = text;
+      panel.hidden = false;
+      input.focus();
+      input.select();
+      setConnectionStatus("SHARE TEXT SELECTED. PRESS CTRL+C OR TAP AND HOLD TO COPY.");
+    }
+  }
+
   function createRoom() {
     if (!window.Peer) {
       setConnectionStatus("ROOM SERVICE DID NOT LOAD. CHECK YOUR CONNECTION AND RELOAD.");
@@ -314,7 +370,7 @@
       setConnectionStatus("ROOM SERVICE DID NOT LOAD. CHECK YOUR CONNECTION AND RELOAD.");
       return;
     }
-    const code = document.getElementById("room-input").value.trim().toUpperCase();
+    const code = extractRoomCode(document.getElementById("room-input").value);
     if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) {
       setConnectionStatus("ENTER THE SIX-CHARACTER ROOM CODE.");
       return;
@@ -657,14 +713,30 @@
     if (!document.getElementById("join-form").hidden) document.getElementById("room-input").focus();
   });
   document.getElementById("join-form").addEventListener("submit", joinRoom);
-  document.getElementById("copy-room-code").addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(state.network.room);
-      setConnectionStatus("ROOM CODE COPIED. SEND IT TO YOUR FRIEND.");
-    } catch (error) {
-      console.warn("Could not copy room code:", error);
-      setConnectionStatus("COPY FAILED. SELECT THE ROOM CODE AND SHARE IT MANUALLY.");
-    }
+  document.getElementById("room-input").addEventListener("paste", event => {
+    event.preventDefault();
+    const input = event.currentTarget;
+    const code = extractRoomCode(event.clipboardData.getData("text"));
+    input.value = code;
+    setConnectionStatus(/^[A-HJ-NP-Z2-9]{6}$/.test(code) ? "ROOM CODE READY. PRESS CONNECT TO JOIN." : "PASTE A SIX-CHARACTER ROOM CODE OR INVITE LINK.");
+  });
+  document.getElementById("room-input").addEventListener("input", event => {
+    const input = event.currentTarget;
+    const code = extractRoomCode(input.value);
+    if (input.value !== code) input.value = code;
+  });
+  document.getElementById("copy-room-code").addEventListener("click", () => {
+    copyForFriend(state.network.room, "ROOM CODE");
+  });
+  document.getElementById("room-code").addEventListener("click", selectRoomCode);
+  document.getElementById("room-code").addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") selectRoomCode();
+  });
+  document.getElementById("manual-share-input").addEventListener("click", event => event.currentTarget.select());
+  document.getElementById("copy-invite-link").addEventListener("click", () => {
+    const invite = new URL(window.location.href);
+    invite.searchParams.set("room", state.network.room);
+    copyForFriend(invite.href, "INVITE LINK");
   });
   document.getElementById("sound-toggle").addEventListener("click", () => {
     state.sound = !state.sound;
@@ -704,6 +776,16 @@
   fireButton.addEventListener("pointerup", releaseFire);
   fireButton.addEventListener("pointercancel", releaseFire);
   window.addEventListener("resize", () => { resize(); touchControls.setAttribute("aria-hidden", String(!mobile.matches || state.mode !== "playing")); });
+
+  const sharedRoom = new URLSearchParams(window.location.search).get("room");
+  if (sharedRoom) {
+    const code = extractRoomCode(sharedRoom);
+    if (/^[A-HJ-NP-Z2-9]{6}$/.test(code)) {
+      document.getElementById("join-form").hidden = false;
+      document.getElementById("room-input").value = code;
+      setConnectionStatus("INVITE LINK OPENED. PRESS CONNECT TO JOIN YOUR FRIEND.");
+    }
+  }
 
   createBackground();
   resize();

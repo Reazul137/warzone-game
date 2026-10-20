@@ -67,9 +67,13 @@ h1 span { color: var(--lime); }
 .join-row input:focus { border-color: var(--lime); }
 .join-row button { padding: 0 12px; border: 1px solid var(--lime); background: transparent; color: var(--lime); font-size: 9px; letter-spacing: .06em; cursor: pointer; }
 .room-code-panel { display: flex; align-items: center; gap: 10px; margin-top: 13px; }
-.room-code-panel strong { padding: 8px 11px; border: 1px solid var(--lime); color: var(--lime); font-size: 17px; letter-spacing: .18em; }
+.room-code-panel strong { padding: 8px 11px; border: 1px solid var(--lime); color: var(--lime); font-size: 17px; letter-spacing: .18em; user-select: all; cursor: pointer; }
 .room-code-panel button { padding: 8px; border: 1px solid #657052; background: transparent; color: var(--cream); font-size: 8px; cursor: pointer; }
 .room-code-panel button:hover { border-color: var(--lime); color: var(--lime); }
+.manual-share-panel { margin-top: 10px; }
+.manual-share-panel[hidden] { display: none; }
+.manual-share-panel label { display: block; margin-bottom: 5px; color: #abb19f; font-size: 8px; letter-spacing: .08em; }
+.manual-share-panel input { width: min(100%, 410px); padding: 8px; border: 1px solid #657052; border-radius: 0; background: #141a13; color: var(--lime); font: 10px "DM Mono", monospace; user-select: all; }
 .connection-status { min-height: 14px; margin-top: 11px; color: var(--lime); font-size: 8px; letter-spacing: .08em; }
 .briefing { display: flex; gap: 16px; margin-top: 17px; color: #7e8578; font-size: 8px; letter-spacing: .1em; }
 .briefing span:first-child { color: #bdc2b5; }

@@ -47,10 +47,11 @@
               <button class="join-toggle" id="join-toggle" type="button">JOIN A FRIEND</button>
             </div>
             <form class="join-form" id="join-form" hidden>
-              <label for="room-input">ENTER YOUR FRIEND'S ROOM CODE</label>
-              <div class="join-row"><input id="room-input" name="room" inputmode="text" autocomplete="off" maxlength="6" placeholder="ABC123" aria-label="Room code" required><button type="submit">CONNECT ↗</button></div>
+              <label for="room-input">PASTE YOUR FRIEND'S ROOM CODE OR INVITE LINK</label>
+              <div class="join-row"><input id="room-input" name="room" type="text" inputmode="text" autocapitalize="characters" spellcheck="false" autocomplete="off" placeholder="ABC123" aria-label="Room code or invite link" required><button type="submit">CONNECT ↗</button></div>
             </form>
-            <div class="room-code-panel" id="room-code-panel" hidden><span>YOUR ROOM CODE</span><strong id="room-code">------</strong><button id="copy-room-code" type="button">COPY</button><span>SHARE THIS CODE WITH YOUR FRIEND</span></div>
+            <div class="room-code-panel" id="room-code-panel" hidden><span>YOUR ROOM CODE</span><strong id="room-code" role="button" tabindex="0" title="Tap to select the room code" aria-label="Select room code">------</strong><button id="copy-room-code" type="button">COPY CODE</button><button id="copy-invite-link" type="button">COPY INVITE LINK</button><span>SHARE THE CODE OR INVITE LINK WITH YOUR FRIEND</span></div>
+            <div class="manual-share-panel" id="manual-share-panel" hidden><label id="manual-share-label" for="manual-share-input">SELECT AND COPY TO SHARE</label><input id="manual-share-input" readonly></div>
             <div class="connection-status" id="connection-status" aria-live="polite">CREATE A ROOM OR JOIN A FRIEND TO PLAY TOGETHER</div>
             <div class="briefing"><span>CO-OP BRIEF</span><span>2 OPERATORS. 1 FRONTLINE.</span></div>
           </div>

@@ -6,7 +6,7 @@ A browser-playable, online two-player co-op survival shooter. Team up to hold th
 
 Open the GitHub Pages URL in a modern browser, or serve this folder with any static web server. No build step or package installation is needed.
 
-- **Play online together:** one player selects **Create co-op room** and shares the six-character code; the other selects **Join a friend** and enters that code. The host starts the match after the connection is ready.
+- **Play online together:** one player selects **Create co-op room** and shares the six-character code or invite link; the other selects **Join a friend** and pastes either one. The host starts the match after the connection is ready.
 - **Move:** `W`, `A`, `S`, `D`
 - **Aim:** mouse
 - **Fire:** left mouse button or spacebar
@@ -15,7 +15,7 @@ Open the GitHub Pages URL in a modern browser, or serve this folder with any sta
 
 Both players share one arena, wave progression, and elimination score, with separate health bars. Enemies target the closest active operator. Survive each wave to receive a small health refill; armored units take multiple hits.
 
-Online rooms use PeerJS for WebRTC signaling and direct peer-to-peer data. Both players need an internet connection and a browser that permits WebRTC. PeerJS is loaded from its CDN.
+Online rooms use PeerJS for WebRTC signaling and direct peer-to-peer data. Both players need an internet connection and a browser that permits WebRTC. PeerJS is loaded from its CDN. If clipboard access is blocked, the share text is selected in a manual-copy field.
 
 ## Deploy to GitHub Pages
 
