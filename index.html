@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#10140f">
+    <meta name="description" content="Drop into the warzone. Survive the enemy waves in this free browser arcade shooter.">
+    <title>LAST STAND — Warzone Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Last Stand home"><span class="brand-mark">LS</span><span>LAST<span class="brand-light">STAND</span></span></a>
+        <div class="topbar-center"><span class="live-dot"></span> OPERATION: IRON FRONT <span class="topbar-divider">/</span> SECTOR 07</div>
+        <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Toggle sound" title="Toggle sound">SOUND <span id="sound-state">OFF</span></button>
+      </header>
+
+      <section class="game-frame" aria-label="Last Stand game">
+        <canvas id="game" aria-label="Top-down survival shooter game"></canvas>
+        <div class="hud" id="hud" hidden>
+          <div class="hud-left">
+            <div class="hud-label">OPERATOR <span>07</span></div>
+            <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
+            <div class="health-caption"><span>VITALS</span><span id="health-value">100</span></div>
+          </div>
+          <div class="hud-center">
+            <div class="wave-label">HOSTILES INBOUND</div>
+            <div class="wave-number" id="wave-number">WAVE 01</div>
+          </div>
+          <div class="hud-right">
+            <div class="hud-label">ELIMINATIONS</div>
+            <div class="score-number" id="score-value">0000</div>
+          </div>
+          <div class="hud-status"><span class="live-dot"></span><span id="status-text">CONTACT</span></div>
+        </div>
+        <div class="overlay" id="overlay">
+          <div class="overlay-content">
+            <div class="eyebrow"><span class="eyebrow-line"></span> SURVIVAL PROTOCOL // 07 <span class="eyebrow-line"></span></div>
+            <h1 id="overlay-title">HOLD THE<br><span>FRONTLINE.</span></h1>
+            <p id="overlay-copy">The perimeter is compromised. Enemy units are closing in.<br>Hold your ground. Make every shot count.</p>
+            <button class="deploy-button" id="deploy-button" type="button"><span id="button-label">DEPLOY TO WARZONE</span><span class="button-arrow">↗</span></button>
+            <div class="briefing"><span>MISSION BRIEF</span><span>ELIMINATE HOSTILES. SURVIVE.</span></div>
+          </div>
+          <div class="corner-label corner-tl">GRID 44.09 / 12.82</div>
+          <div class="corner-label corner-br">CLASSIFIED <span>•</span> LEVEL 04</div>
+        </div>
+        <div class="pause-badge" id="pause-badge" hidden>PAUSED <span>— PRESS P TO RESUME</span></div>
+        <div class="touch-controls" id="touch-controls" aria-hidden="true">
+          <div class="joystick" id="joystick"><div class="joystick-knob"></div></div>
+          <button class="touch-fire" id="touch-fire" type="button" aria-label="Fire weapon">FIRE</button>
+        </div>
+      </section>
+
+      <footer class="bottom-bar">
+        <div class="controls-desktop"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVE</span><span><kbd>MOUSE</kbd> AIM</span><span><kbd>CLICK</kbd> FIRE</span><span><kbd>P</kbd> PAUSE</span></div>
+        <div class="controls-mobile">LEFT STICK MOVE <span>•</span> FIRE BUTTON SHOOT</div>
+        <div class="footer-right">NO RESPAWNS. <span>NO BACKUP.</span></div>
+      </footer>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
