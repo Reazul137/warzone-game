@@ -276,30 +276,82 @@
   }
 
   function drawPlayer(p) {
-    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.angle);
     if (p.invulnerable > 0 && Math.floor(p.invulnerable * 18) % 2 === 0) ctx.globalAlpha = .45;
-    ctx.fillStyle = "#10150f"; ctx.beginPath(); ctx.arc(0, 1, 16, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#c2e06a"; ctx.fillRect(-7, -9, 16, 18);
-    ctx.fillStyle = "#e4e0c9"; ctx.fillRect(2, -5, 16, 10);
-    ctx.fillStyle = "#515d37"; ctx.fillRect(-11, -13, 9, 5); ctx.fillRect(-11, 8, 9, 5);
-    ctx.fillStyle = "#292f24"; ctx.fillRect(13, -3, 12, 6);
-    ctx.fillStyle = "#f4d676"; ctx.fillRect(23, -1, 3, 2);
-    ctx.restore();
+    drawSoldier(p.x, p.y, p.angle, {
+      uniform: "#718544", vest: "#b4ca67", helmet: "#c2e06a",
+      pants: "#4b5935", skin: "#c39a72", weapon: "#292f24", accent: "#e4e0c9",
+    });
+    ctx.globalAlpha = 1;
   }
 
   function drawEnemy(e) {
-    ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(Math.atan2(state.player.y - e.y, state.player.x - e.x));
-    const color = e.heavy ? "#d2a164" : "#d85a48";
-    ctx.fillStyle = "#131712"; ctx.beginPath(); ctx.arc(0, 0, e.radius + 3, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = color; ctx.fillRect(-e.radius * .65, -e.radius * .68, e.radius * 1.4, e.radius * 1.36);
-    ctx.fillStyle = e.heavy ? "#63523a" : "#6b322b"; ctx.fillRect(-e.radius * .3, -e.radius * .3, e.radius, e.radius * .6);
-    ctx.fillStyle = "#191c17"; ctx.fillRect(2, -3, e.radius + 9, 6);
-    if (e.heavy) { ctx.strokeStyle = "#edc681"; ctx.lineWidth = 2; ctx.strokeRect(-e.radius - 3, -e.radius - 3, e.radius * 2 + 6, e.radius * 2 + 6); }
-    ctx.restore();
+    const angle = Math.atan2(state.player.y - e.y, state.player.x - e.x);
+    const uniform = e.heavy ? "#75503a" : "#75413b";
+    const scale = e.heavy ? 1.22 : 1;
+    drawSoldier(e.x, e.y, angle, {
+      uniform, vest: e.heavy ? "#c49a62" : "#b65c4d",
+      helmet: e.heavy ? "#d2a164" : "#d85a48",
+      pants: e.heavy ? "#4c3a2e" : "#4c302c",
+      skin: "#b98766", weapon: "#211d19", accent: e.heavy ? "#edc681" : "#dd9580",
+    }, scale);
     if (e.heavy) {
       ctx.fillStyle = "#151a14"; ctx.fillRect(e.x - 17, e.y - 26, 34, 3);
       ctx.fillStyle = "#d2a164"; ctx.fillRect(e.x - 16, e.y - 25, 32 * e.health / 3, 1);
     }
+  }
+
+  function drawSoldier(x, y, angle, colors, scale = 1) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = "#10140fc9";
+    ctx.beginPath(); ctx.ellipse(-1, 4, 20, 14, 0, 0, Math.PI * 2); ctx.fill();
+
+    ctx.lineCap = "round";
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = colors.pants;
+    ctx.beginPath();
+    ctx.moveTo(-7, -4); ctx.lineTo(-16, -9);
+    ctx.moveTo(-7, 4); ctx.lineTo(-16, 9);
+    ctx.stroke();
+
+    ctx.fillStyle = "#181b16";
+    ctx.beginPath();
+    ctx.ellipse(-18, -9, 4, 3, -.3, 0, Math.PI * 2);
+    ctx.ellipse(-18, 9, 4, 3, .3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = colors.uniform;
+    ctx.beginPath();
+    ctx.moveTo(1, -5); ctx.lineTo(10, -7);
+    ctx.moveTo(1, 5); ctx.lineTo(10, 7);
+    ctx.stroke();
+
+    ctx.fillStyle = colors.uniform;
+    ctx.beginPath(); ctx.ellipse(-4, 0, 12, 9, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = colors.vest;
+    ctx.beginPath(); ctx.ellipse(-2, 0, 8, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#20251d";
+    ctx.fillRect(-6, -4, 4, 3);
+    ctx.fillRect(-6, 1, 4, 3);
+
+    ctx.fillStyle = colors.skin;
+    ctx.beginPath(); ctx.arc(8, 0, 5.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = colors.helmet;
+    ctx.beginPath(); ctx.ellipse(8, 0, 6.5, 6, 0, -Math.PI * .8, Math.PI * .8); ctx.fill();
+    ctx.fillStyle = colors.accent;
+    ctx.fillRect(7, -1, 3, 2);
+
+    ctx.fillStyle = colors.weapon;
+    ctx.fillRect(9, -2, 16, 4);
+    ctx.fillStyle = "#9a9a7c";
+    ctx.fillRect(21, -1, 7, 2);
+    ctx.fillStyle = "#171a15";
+    ctx.fillRect(13, 1, 3, 5);
+    ctx.restore();
   }
 
   function drawCrosshair() {
