@@ -13,11 +13,12 @@
   const H = 540;
   const keys = new Set();
   const state = {
-    mode: "ready", player: null, bullets: [], enemies: [], particles: [],
+    mode: "ready", player: null, player2: null, bullets: [], enemies: [], particles: [],
     score: 0, wave: 1, remaining: 0, spawnTimer: 0, wavePause: 0,
     lastTime: 0, aim: { x: W / 2, y: H / 2 }, pointerDown: false,
     joy: { x: 0, y: 0 }, joyPointer: null, firePointer: null,
     sound: false, audio: null, shake: 0, background: null,
+    network: { peer: null, connection: null, role: null, room: "", remoteInput: null, inputTimer: 0, snapshotTimer: 0 },
   };
 
   function resize() {
@@ -47,7 +48,8 @@
 
   function start() {
     state.mode = "playing";
-    state.player = { x: W / 2, y: H / 2, radius: 13, health: 100, cooldown: 0, invulnerable: 0, angle: -Math.PI / 2 };
+    state.player = { x: W / 2 - 22, y: H / 2, radius: 13, health: 100, cooldown: 0, invulnerable: 0, angle: -Math.PI / 2 };
+    state.player2 = state.network.connection ? { x: W / 2 + 22, y: H / 2, radius: 13, health: 100, cooldown: 0, invulnerable: 0, angle: Math.PI / 2 } : null;
     state.bullets = [];
     state.enemies = [];
     state.particles = [];
@@ -59,6 +61,9 @@
     state.shake = 0;
     state.lastTime = performance.now();
     overlay.hidden = true;
+    document.getElementById("overlay-title").innerHTML = "HOLD THE<br><span>FRONTLINE.</span>";
+    document.getElementById("overlay-copy").innerHTML = "Create a room and invite a friend, or enter their code to join.<br>Fight together and hold the frontline.";
+    document.getElementById("button-label").textContent = state.network.role === "host" ? "START CO-OP" : "CREATE CO-OP ROOM";
     hud.hidden = false;
     pauseBadge.hidden = true;
     touchControls.setAttribute("aria-hidden", String(!mobile.matches));
@@ -68,10 +73,11 @@
   function endGame() {
     state.mode = "over";
     overlay.hidden = false;
-    document.getElementById("overlay-title").innerHTML = "MISSION<br><span>FAILED.</span>";
+    document.getElementById("overlay-title").innerHTML = "SQUAD<br><span>WIPED OUT.</span>";
     document.getElementById("overlay-copy").innerHTML =
-      `You made it to wave ${String(state.wave).padStart(2, "0")} and eliminated ${state.score} hostiles.<br>The frontline needs you. Ready for another drop?`;
-    document.getElementById("button-label").textContent = "REDEPLOY";
+      `Your squad made it to wave ${String(state.wave).padStart(2, "0")} and eliminated ${state.score} hostiles.<br>The frontline needs you. Ready for another drop?`;
+    document.getElementById("button-label").textContent = state.network.role === "guest" ? "WAITING FOR HOST" : "REDEPLOY";
+    document.getElementById("deploy-button").disabled = state.network.role === "guest";
     hud.hidden = true;
     touchControls.setAttribute("aria-hidden", "true");
   }
@@ -81,6 +87,9 @@
     if (!p) return;
     document.getElementById("health-fill").style.width = `${Math.max(0, p.health)}%`;
     document.getElementById("health-value").textContent = Math.ceil(Math.max(0, p.health));
+    const p2 = state.player2;
+    document.getElementById("health-fill-two").style.width = `${p2 ? Math.max(0, p2.health) : 100}%`;
+    document.getElementById("health-value-two").textContent = p2 ? Math.ceil(Math.max(0, p2.health)) : "--";
     document.getElementById("wave-number").textContent = `WAVE ${String(state.wave).padStart(2, "0")}`;
     document.getElementById("score-value").textContent = String(state.score).padStart(4, "0");
     document.getElementById("status-text").textContent = state.enemies.length ? "CONTACT" : "SECTOR CLEAR";
@@ -91,10 +100,9 @@
     return { x: ((event.clientX - rect.left) / rect.width) * W, y: ((event.clientY - rect.top) / rect.height) * H };
   }
 
-  function shoot() {
-    const p = state.player;
+  function shoot(p, aim) {
     if (state.mode !== "playing" || !p || p.cooldown > 0) return;
-    let angle = p.angle;
+    let angle = Math.atan2(aim.y - p.y, aim.x - p.x);
     if (mobile.matches && state.enemies.length) {
       const target = state.enemies.reduce((best, e) =>
         Math.hypot(e.x - p.x, e.y - p.y) < Math.hypot(best.x - p.x, best.y - p.y) ? e : best, state.enemies[0]);
@@ -133,6 +141,11 @@
       heavy, cooldown: 1.2 + Math.random() * 1.6, phase: Math.random() * Math.PI * 2 });
   }
 
+  function nearestPlayerTarget(from) {
+    return state.enemies.reduce((best, enemy) =>
+      !best || Math.hypot(enemy.x - from.x, enemy.y - from.y) < Math.hypot(best.x - from.x, best.y - from.y) ? enemy : best, null);
+  }
+
   function burst(x, y, color, count, force) {
     for (let i = 0; i < count; i++) {
       const a = Math.random() * Math.PI * 2, speed = force * (.25 + Math.random() * .75);
@@ -140,23 +153,38 @@
     }
   }
 
-  function update(dt) {
-    if (state.mode !== "playing") return;
-    const p = state.player;
-    p.cooldown = Math.max(0, p.cooldown - dt);
-    p.invulnerable = Math.max(0, p.invulnerable - dt);
-    const left = keys.has("a") || keys.has("arrowleft");
-    const right = keys.has("d") || keys.has("arrowright");
-    const up = keys.has("w") || keys.has("arrowup");
-    const down = keys.has("s") || keys.has("arrowdown");
-    let dx = Number(right) - Number(left) + state.joy.x;
-    let dy = Number(down) - Number(up) + state.joy.y;
+  function localInput() {
+    let dx = Number(keys.has("d")) - Number(keys.has("a")) + state.joy.x;
+    let dy = Number(keys.has("s")) - Number(keys.has("w")) + state.joy.y;
     const length = Math.hypot(dx, dy);
     if (length > 1) { dx /= length; dy /= length; }
-    p.x = clamp(p.x + dx * 205 * dt, 19, W - 19);
-    p.y = clamp(p.y + dy * 205 * dt, 19, H - 19);
-    if (!mobile.matches) p.angle = Math.atan2(state.aim.y - p.y, state.aim.x - p.x);
-    if (state.pointerDown || state.firePointer !== null || keys.has(" ")) shoot();
+    let aim = state.aim;
+    if (mobile.matches) {
+      const player = state.network.role === "guest" ? state.player2 : state.player;
+      const target = player && nearestPlayerTarget(player);
+      if (target) aim = { x: target.x, y: target.y };
+    }
+    return { dx, dy, aim, firing: state.pointerDown || state.firePointer !== null || keys.has(" ") };
+  }
+
+  function applyInput(player, input, dt) {
+    if (!player || player.health <= 0) return;
+    player.cooldown = Math.max(0, player.cooldown - dt);
+    player.invulnerable = Math.max(0, player.invulnerable - dt);
+    player.x = clamp(player.x + input.dx * 205 * dt, 19, W - 19);
+    player.y = clamp(player.y + input.dy * 205 * dt, 19, H - 19);
+    player.angle = Math.atan2(input.aim.y - player.y, input.aim.x - player.x);
+    if (input.firing) shoot(player, input.aim);
+  }
+
+  function update(dt) {
+    if (state.mode !== "playing" || state.network.role === "guest") return;
+    const p = state.player;
+    const players = [p, state.player2].filter(player => player && player.health > 0);
+    applyInput(p, localInput(), dt);
+    if (state.player2) applyInput(state.player2, state.network.remoteInput || {
+      dx: 0, dy: 0, aim: { x: state.player2.x + Math.cos(state.player2.angle) * 100, y: state.player2.y + Math.sin(state.player2.angle) * 100 }, firing: false,
+    }, dt);
 
     if (state.remaining > 0) {
       state.spawnTimer -= dt;
@@ -168,15 +196,19 @@
         state.remaining = Math.min(4 + state.wave * 2, 24);
         state.spawnTimer = .4;
         state.wavePause = 0;
-        p.health = Math.min(100, p.health + 12);
+        for (const player of [state.player, state.player2]) if (player) player.health = Math.min(100, player.health + 12);
         syncHud();
       }
     }
 
     for (const e of state.enemies) {
-      const angle = Math.atan2(p.y - e.y, p.x - e.x);
-      const distance = Math.hypot(p.x - e.x, p.y - e.y);
-      if (distance > e.radius + p.radius + 8) {
+      const targets = [state.player, state.player2].filter(player => player && player.health > 0);
+      if (!targets.length) break;
+      const target = targets.reduce((best, player) =>
+        Math.hypot(player.x - e.x, player.y - e.y) < Math.hypot(best.x - e.x, best.y - e.y) ? player : best);
+      const angle = Math.atan2(target.y - e.y, target.x - e.x);
+      const distance = Math.hypot(target.x - e.x, target.y - e.y);
+      if (distance > e.radius + target.radius + 8) {
         e.x += Math.cos(angle) * e.speed * dt;
         e.y += Math.sin(angle) * e.speed * dt;
       }
@@ -205,11 +237,13 @@
             break;
           }
         }
-      } else if (p.invulnerable <= 0 && Math.hypot(b.x - p.x, b.y - p.y) < p.radius + 4) {
-        b.life = 0; p.health -= 9; p.invulnerable = .5; state.shake = 7;
-        burst(p.x, p.y, "#e45947", 8, 100);
-        if (state.sound) tone(90, .13, .04);
-        if (p.health <= 0) { syncHud(); endGame(); return; }
+      } else {
+        const hit = players.find(player => player.invulnerable <= 0 && Math.hypot(b.x - player.x, b.y - player.y) < player.radius + 4);
+        if (hit) {
+          b.life = 0; hit.health -= 9; hit.invulnerable = .5; state.shake = 7;
+          burst(hit.x, hit.y, "#e45947", 8, 100);
+          if (state.sound) tone(90, .13, .04);
+        }
       }
     }
     state.bullets = state.bullets.filter(b => b.life > 0 && b.x > -30 && b.x < W + 30 && b.y > -30 && b.y < H + 30);
@@ -221,6 +255,196 @@
     state.particles = state.particles.filter(particle => particle.life > 0);
     state.shake = Math.max(0, state.shake - dt * 22);
     syncHud();
+    if ([state.player, state.player2].filter(Boolean).every(player => player.health <= 0)) endGame();
+  }
+
+  function setConnectionStatus(message) {
+    document.getElementById("connection-status").textContent = message;
+  }
+
+  function setRoomCode(code) {
+    document.getElementById("room-code").textContent = code;
+    document.getElementById("room-code-panel").hidden = !code;
+  }
+
+  function createRoom() {
+    if (!window.Peer) {
+      setConnectionStatus("ROOM SERVICE DID NOT LOAD. CHECK YOUR CONNECTION AND RELOAD.");
+      return;
+    }
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const code = Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+    const network = state.network;
+    network.role = "host";
+    network.room = code;
+    network.peer = new window.Peer(`laststand-${code.toLowerCase()}`);
+    document.getElementById("deploy-button").disabled = true;
+    document.getElementById("join-toggle").hidden = true;
+    document.getElementById("join-form").hidden = true;
+    setRoomCode(code);
+    setConnectionStatus("CONNECTING TO ROOM SERVICE...");
+
+    network.peer.on("open", () => {
+      document.getElementById("button-label").textContent = "WAITING FOR FRIEND";
+      setConnectionStatus("ROOM OPEN. SHARE YOUR CODE AND WAIT FOR YOUR FRIEND.");
+    });
+    network.peer.on("connection", connection => {
+      if (network.connection) { connection.close(); return; }
+      attachConnection(connection, "host");
+    });
+    network.peer.on("error", error => {
+      console.error("Room service error:", error);
+      if (error.type === "unavailable-id") {
+        network.peer.destroy();
+        network.peer = null;
+        network.role = null;
+        document.getElementById("deploy-button").disabled = false;
+        document.getElementById("join-toggle").hidden = false;
+        setRoomCode("");
+        setConnectionStatus("THAT ROOM CODE WAS TAKEN. CREATE A ROOM TO TRY AGAIN.");
+      } else {
+        setConnectionStatus("ROOM SERVICE ERROR. CHECK YOUR CONNECTION AND TRY AGAIN.");
+      }
+    });
+  }
+
+  function joinRoom(event) {
+    event.preventDefault();
+    if (!window.Peer) {
+      setConnectionStatus("ROOM SERVICE DID NOT LOAD. CHECK YOUR CONNECTION AND RELOAD.");
+      return;
+    }
+    const code = document.getElementById("room-input").value.trim().toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) {
+      setConnectionStatus("ENTER THE SIX-CHARACTER ROOM CODE.");
+      return;
+    }
+    const network = state.network;
+    network.role = "guest";
+    network.room = code;
+    document.getElementById("join-form").hidden = true;
+    document.getElementById("join-toggle").hidden = true;
+    document.getElementById("deploy-button").disabled = true;
+    document.getElementById("button-label").textContent = "CONNECTING...";
+    setConnectionStatus("CONNECTING TO YOUR FRIEND'S ROOM...");
+    network.peer = new window.Peer();
+    network.peer.on("open", () => {
+      network.connection = network.peer.connect(`laststand-${code.toLowerCase()}`, { reliable: true });
+      attachConnection(network.connection, "guest");
+    });
+    network.peer.on("error", error => {
+      console.error("Room connection error:", error);
+      if (error.type === "peer-unavailable") {
+        setConnectionStatus("ROOM NOT FOUND. CHECK THE CODE AND TRY AGAIN.");
+      } else {
+        setConnectionStatus("COULD NOT CONNECT. CHECK YOUR CONNECTION AND ROOM CODE.");
+      }
+      network.peer.destroy();
+      network.peer = null;
+      network.role = null;
+      network.connection = null;
+      document.getElementById("deploy-button").disabled = false;
+      document.getElementById("button-label").textContent = "CREATE CO-OP ROOM";
+      document.getElementById("join-toggle").hidden = false;
+      document.getElementById("join-form").hidden = false;
+    });
+  }
+
+  function attachConnection(connection, role) {
+    const network = state.network;
+    network.connection = connection;
+    network.remoteInput = { dx: 0, dy: 0, aim: { x: W / 2, y: H / 2 }, firing: false };
+    connection.on("open", () => {
+      if (role === "host") {
+        document.getElementById("button-label").textContent = "START CO-OP";
+        document.getElementById("deploy-button").disabled = false;
+        setConnectionStatus("FRIEND CONNECTED. BOTH OPERATORS READY.");
+      } else {
+        document.getElementById("button-label").textContent = "WAITING FOR HOST";
+        setConnectionStatus("CONNECTED. WAITING FOR YOUR FRIEND TO START.");
+        connection.send({ type: "ready" });
+      }
+    });
+    connection.on("data", packet => {
+      if (role === "host" && packet && packet.type === "input") {
+        const input = packet.input || {};
+        const aim = input.aim || {};
+        network.remoteInput = {
+          dx: Number.isFinite(input.dx) ? clamp(input.dx, -1, 1) : 0,
+          dy: Number.isFinite(input.dy) ? clamp(input.dy, -1, 1) : 0,
+          aim: { x: Number.isFinite(aim.x) ? clamp(aim.x, 0, W) : W / 2, y: Number.isFinite(aim.y) ? clamp(aim.y, 0, H) : H / 2 },
+          firing: input.firing === true,
+        };
+      } else if (role === "guest" && packet && packet.type === "snapshot") {
+        receiveSnapshot(packet);
+      }
+    });
+    connection.on("close", () => {
+      network.connection = null;
+      network.remoteInput = null;
+      setConnectionStatus("FRIEND DISCONNECTED. REFRESH TO CREATE OR JOIN A ROOM.");
+      if (role === "host") {
+        document.getElementById("deploy-button").disabled = true;
+        if (state.mode === "playing") {
+          state.mode = "paused";
+          pauseBadge.hidden = false;
+          pauseBadge.innerHTML = "FRIEND DISCONNECTED <span>— REFRESH TO REJOIN</span>";
+        }
+      } else if (state.mode === "playing") {
+        state.mode = "paused";
+        pauseBadge.hidden = false;
+        pauseBadge.innerHTML = "CONNECTION LOST <span>— REFRESH TO REJOIN</span>";
+      }
+    });
+    connection.on("error", error => {
+      console.error("Peer connection error:", error);
+      setConnectionStatus("CONNECTION INTERRUPTED. CHECK THE NETWORK.");
+    });
+  }
+
+  function receiveSnapshot(packet) {
+    const previousMode = state.mode;
+    state.mode = packet.mode;
+    state.player = packet.player;
+    state.player2 = packet.player2;
+    state.bullets = packet.bullets;
+    state.enemies = packet.enemies;
+    state.score = packet.score;
+    state.wave = packet.wave;
+    state.remaining = packet.remaining;
+    if (state.mode === "playing") {
+      overlay.hidden = true;
+      hud.hidden = false;
+      pauseBadge.hidden = true;
+      touchControls.setAttribute("aria-hidden", String(!mobile.matches));
+    } else if (state.mode === "paused") {
+      hud.hidden = false;
+      pauseBadge.hidden = false;
+    } else if (state.mode === "over" && previousMode !== "over") {
+      endGame();
+    }
+    syncHud();
+  }
+
+  function tickNetwork(dt) {
+    const network = state.network;
+    if (!network.connection || !network.connection.open) return;
+    if (network.role === "guest") {
+      network.inputTimer += dt;
+      if (network.inputTimer >= .05) {
+        network.inputTimer = 0;
+        network.connection.send({ type: "input", input: localInput() });
+      }
+    } else if (network.role === "host") {
+      network.snapshotTimer += dt;
+      if (network.snapshotTimer >= .05) {
+        network.snapshotTimer = 0;
+        network.connection.send({
+          type: "snapshot", mode: state.mode, player: state.player, player2: state.player2,
+          bullets: state.bullets, enemies: state.enemies, score: state.score, wave: state.wave, remaining: state.remaining,
+        });
+      }
+    }
   }
 
   function draw() {
@@ -238,7 +462,8 @@
       ctx.beginPath(); ctx.arc(b.x, b.y, b.friendly ? 3 : 3.5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
     }
     for (const e of state.enemies) drawEnemy(e);
-    if (state.player && state.mode !== "ready") drawPlayer(state.player);
+    if (state.player && state.mode !== "ready") drawPlayer(state.player, false);
+    if (state.player2 && state.mode !== "ready") drawPlayer(state.player2, true);
     for (const particle of state.particles) {
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
       ctx.fillStyle = particle.color; ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
@@ -275,9 +500,12 @@
     ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H);
   }
 
-  function drawPlayer(p) {
+  function drawPlayer(p, second) {
     if (p.invulnerable > 0 && Math.floor(p.invulnerable * 18) % 2 === 0) ctx.globalAlpha = .45;
-    drawSoldier(p.x, p.y, p.angle, {
+    drawSoldier(p.x, p.y, p.angle, second ? {
+      uniform: "#426674", vest: "#73a9b5", helmet: "#82c9dd",
+      pants: "#354c54", skin: "#c39a72", weapon: "#292f24", accent: "#d1e4e6",
+    } : {
       uniform: "#718544", vest: "#b4ca67", helmet: "#c2e06a",
       pants: "#4b5935", skin: "#c39a72", weapon: "#292f24", accent: "#e4e0c9",
     });
@@ -285,7 +513,9 @@
   }
 
   function drawEnemy(e) {
-    const angle = Math.atan2(state.player.y - e.y, state.player.x - e.x);
+    const target = [state.player, state.player2].filter(player => player && player.health > 0).reduce((best, player) =>
+      !best || Math.hypot(player.x - e.x, player.y - e.y) < Math.hypot(best.x - e.x, best.y - e.y) ? player : best, null) || state.player;
+    const angle = Math.atan2(target.y - e.y, target.x - e.x);
     const uniform = e.heavy ? "#75503a" : "#75413b";
     const scale = e.heavy ? 1.22 : 1;
     drawSoldier(e.x, e.y, angle, {
@@ -367,15 +597,23 @@
     const dt = Math.min((time - state.lastTime) / 1000 || 0, .04);
     state.lastTime = time;
     update(dt);
+    tickNetwork(dt);
     requestAnimationFrame(frame);
   }
 
   canvas.addEventListener("pointermove", event => {
     state.aim = worldPoint(event);
-    if (event.pointerType === "mouse" && state.mode === "playing") state.player.angle = Math.atan2(state.aim.y - state.player.y, state.aim.x - state.player.x);
+    const aimingPlayer = state.network.role === "guest" ? state.player2 : state.player;
+    if (event.pointerType === "mouse" && state.mode === "playing" && aimingPlayer) {
+      aimingPlayer.angle = Math.atan2(state.aim.y - aimingPlayer.y, state.aim.x - aimingPlayer.x);
+    }
   });
   canvas.addEventListener("pointerdown", event => {
-    if (event.pointerType === "mouse" && event.button === 0) { state.pointerDown = true; canvas.setPointerCapture(event.pointerId); shoot(); }
+    if (event.pointerType === "mouse" && event.button === 0) {
+      state.pointerDown = true;
+      canvas.setPointerCapture(event.pointerId);
+      if (state.network.role === "host") shoot(state.player, state.aim);
+    }
   });
   canvas.addEventListener("pointerup", event => { if (event.pointerType === "mouse") state.pointerDown = false; });
   canvas.addEventListener("pointercancel", () => { state.pointerDown = false; });
@@ -383,15 +621,51 @@
     const key = event.key.toLowerCase();
     if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
     keys.add(key);
-    if (key === "p" && !event.repeat && state.mode !== "ready" && state.mode !== "over") {
+    if (key === "p" && !event.repeat && state.network.role !== "guest" && (state.mode === "playing" || state.mode === "paused")) {
       state.mode = state.mode === "paused" ? "playing" : "paused";
       pauseBadge.hidden = state.mode !== "paused";
     }
-    if (key === "enter" && state.mode !== "playing" && state.mode !== "paused") start();
   });
   document.addEventListener("keyup", event => keys.delete(event.key.toLowerCase()));
-  window.addEventListener("blur", () => { keys.clear(); state.pointerDown = false; if (state.mode === "playing") { state.mode = "paused"; pauseBadge.hidden = false; } });
-  deployButton.addEventListener("click", start);
+  window.addEventListener("blur", () => {
+    keys.clear();
+    state.pointerDown = false;
+    if (state.network.role !== "guest" && state.mode === "playing") {
+      state.mode = "paused";
+      pauseBadge.hidden = false;
+    }
+  });
+  deployButton.addEventListener("click", () => {
+    if (state.network.role === "host") {
+      if (!state.network.connection || !state.network.connection.open) return;
+      start();
+    } else if (state.network.role === "guest") {
+      return;
+    } else if (state.mode === "over") {
+      setConnectionStatus("CREATE A NEW ROOM TO PLAY AGAIN.");
+      state.network.role = null;
+      state.network.peer = null;
+      state.network.connection = null;
+      document.getElementById("join-toggle").hidden = false;
+      document.getElementById("button-label").textContent = "CREATE CO-OP ROOM";
+    } else {
+      createRoom();
+    }
+  });
+  document.getElementById("join-toggle").addEventListener("click", () => {
+    document.getElementById("join-form").hidden = !document.getElementById("join-form").hidden;
+    if (!document.getElementById("join-form").hidden) document.getElementById("room-input").focus();
+  });
+  document.getElementById("join-form").addEventListener("submit", joinRoom);
+  document.getElementById("copy-room-code").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(state.network.room);
+      setConnectionStatus("ROOM CODE COPIED. SEND IT TO YOUR FRIEND.");
+    } catch (error) {
+      console.warn("Could not copy room code:", error);
+      setConnectionStatus("COPY FAILED. SELECT THE ROOM CODE AND SHARE IT MANUALLY.");
+    }
+  });
   document.getElementById("sound-toggle").addEventListener("click", () => {
     state.sound = !state.sound;
     document.getElementById("sound-state").textContent = state.sound ? "ON" : "OFF";
@@ -420,7 +694,12 @@
   joystick.addEventListener("pointerup", resetJoystick);
   joystick.addEventListener("pointercancel", resetJoystick);
   const fireButton = document.getElementById("touch-fire");
-  fireButton.addEventListener("pointerdown", event => { state.firePointer = event.pointerId; fireButton.setPointerCapture(event.pointerId); shoot(); event.preventDefault(); });
+  fireButton.addEventListener("pointerdown", event => {
+    state.firePointer = event.pointerId;
+    fireButton.setPointerCapture(event.pointerId);
+    if (state.network.role === "host") shoot(state.player, state.aim);
+    event.preventDefault();
+  });
   const releaseFire = event => { if (state.firePointer === event.pointerId) state.firePointer = null; };
   fireButton.addEventListener("pointerup", releaseFire);
   fireButton.addEventListener("pointercancel", releaseFire);

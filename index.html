@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#10140f">
-    <meta name="description" content="Drop into the warzone. Survive the enemy waves in this free browser arcade shooter.">
-    <title>LAST STAND — Warzone Arcade</title>
+    <meta name="description" content="Team up online in Last Stand, a free browser co-op warzone survival shooter.">
+    <title>LAST STAND — Warzone Co-op</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -23,16 +23,16 @@
         <canvas id="game" aria-label="Top-down survival shooter game"></canvas>
         <div class="hud" id="hud" hidden>
           <div class="hud-left">
-            <div class="hud-label">OPERATOR <span>07</span></div>
-            <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
-            <div class="health-caption"><span>VITALS</span><span id="health-value">100</span></div>
+            <div class="hud-label">SQUAD VITALS</div>
+            <div class="health-row"><span>P1</span><div class="health-track"><div class="health-fill" id="health-fill"></div></div><span id="health-value">100</span></div>
+            <div class="health-row health-row-two"><span>P2</span><div class="health-track"><div class="health-fill health-fill-two" id="health-fill-two"></div></div><span id="health-value-two">100</span></div>
           </div>
           <div class="hud-center">
-            <div class="wave-label">HOSTILES INBOUND</div>
+            <div class="wave-label" id="wave-label">SQUAD STATUS</div>
             <div class="wave-number" id="wave-number">WAVE 01</div>
           </div>
           <div class="hud-right">
-            <div class="hud-label">ELIMINATIONS</div>
+            <div class="hud-label">SQUAD ELIMS</div>
             <div class="score-number" id="score-value">0000</div>
           </div>
           <div class="hud-status"><span class="live-dot"></span><span id="status-text">CONTACT</span></div>
@@ -41,9 +41,18 @@
           <div class="overlay-content">
             <div class="eyebrow"><span class="eyebrow-line"></span> SURVIVAL PROTOCOL // 07 <span class="eyebrow-line"></span></div>
             <h1 id="overlay-title">HOLD THE<br><span>FRONTLINE.</span></h1>
-            <p id="overlay-copy">The perimeter is compromised. Enemy units are closing in.<br>Hold your ground. Make every shot count.</p>
-            <button class="deploy-button" id="deploy-button" type="button"><span id="button-label">DEPLOY TO WARZONE</span><span class="button-arrow">↗</span></button>
-            <div class="briefing"><span>MISSION BRIEF</span><span>ELIMINATE HOSTILES. SURVIVE.</span></div>
+            <p id="overlay-copy">Create a room and invite a friend, or enter their room code.<br>Fight together and hold the frontline.</p>
+            <div class="room-actions" id="room-actions">
+              <button class="deploy-button" id="deploy-button" type="button"><span id="button-label">CREATE CO-OP ROOM</span><span class="button-arrow">↗</span></button>
+              <button class="join-toggle" id="join-toggle" type="button">JOIN A FRIEND</button>
+            </div>
+            <form class="join-form" id="join-form" hidden>
+              <label for="room-input">ENTER YOUR FRIEND'S ROOM CODE</label>
+              <div class="join-row"><input id="room-input" name="room" inputmode="text" autocomplete="off" maxlength="6" placeholder="ABC123" aria-label="Room code" required><button type="submit">CONNECT ↗</button></div>
+            </form>
+            <div class="room-code-panel" id="room-code-panel" hidden><span>YOUR ROOM CODE</span><strong id="room-code">------</strong><button id="copy-room-code" type="button">COPY</button><span>SHARE THIS CODE WITH YOUR FRIEND</span></div>
+            <div class="connection-status" id="connection-status" aria-live="polite">CREATE A ROOM OR JOIN A FRIEND TO PLAY TOGETHER</div>
+            <div class="briefing"><span>CO-OP BRIEF</span><span>2 OPERATORS. 1 FRONTLINE.</span></div>
           </div>
           <div class="corner-label corner-tl">GRID 44.09 / 12.82</div>
           <div class="corner-label corner-br">CLASSIFIED <span>•</span> LEVEL 04</div>
@@ -61,6 +70,7 @@
         <div class="footer-right">NO RESPAWNS. <span>NO BACKUP.</span></div>
       </footer>
     </main>
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
     <script src="game.js"></script>
   </body>
 </html>
