@@ -47,7 +47,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .card-index { position: relative; z-index: 2; align-self: flex-start; padding: 6px 8px; border: 1px solid #17171325; border-radius: 30px; font: 8px "DM Mono", monospace; letter-spacing: .09em; }
 .portrait-art { position: absolute; inset: 10px 0 35px; display: grid; place-items: center; transform: translateZ(20px); }
 .portrait-art::before { position: absolute; inset: 15% 16% 8%; content: ""; border-radius: 18px 18px 8px 8px; background: linear-gradient(135deg, #eff28b, #9ca923); }
-.profile-photo { position: relative; width: min(84%, 220px); height: 90%; align-self: end; border-radius: 48% 48% 6px 6px; object-fit: cover; object-position: center 17%; filter: grayscale(100%) contrast(1.04); mix-blend-mode: multiply; }
+.profile-photo { position: relative; width: min(88%, 220px); height: auto; max-height: 90%; align-self: end; border-radius: 6px; object-fit: contain; object-position: center; filter: grayscale(100%) contrast(1.04); mix-blend-mode: multiply; }
 .portrait-caption { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; margin-top: auto; font: 8px/1.5 "DM Mono", monospace; letter-spacing: .07em; }
 .portrait-arrow { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: var(--ink); color: white; font-size: 15px; }
 .identity { padding: 2px 0 3px; }
