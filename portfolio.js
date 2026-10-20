@@ -40,7 +40,10 @@
       card.style.setProperty("--lift", "0px");
       resetTilt(card);
     });
-    card.addEventListener("click", () => openCard(card));
+    card.addEventListener("click", event => {
+      if (event.target.closest("a")) return;
+      openCard(card);
+    });
     card.addEventListener("keydown", event => {
       if ((event.key === "Enter" || event.key === " ") && event.target === card) {
         event.preventDefault();

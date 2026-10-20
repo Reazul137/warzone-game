@@ -19,7 +19,7 @@ Online rooms use PeerJS for WebRTC signaling and direct peer-to-peer data. Both 
 
 ## Interactive portfolio
 
-Open [`portfolio.html`](portfolio.html) for a responsive, reference-inspired portfolio page. Each framed section is a clickable card with a subtle pointer-driven 3D tilt and a detail dialog. The page is a customizable template; replace the sample name, biography, education, contact and experience text with your own.
+Open [`portfolio.html`](portfolio.html) for Md. Reazul Islam's responsive, reference-inspired portfolio page. It includes his LinkedIn profile portrait, education and experience details, direct LinkedIn/Behance/Facebook links, and clickable 3D cards. The skills section uses local SVG software marks from [Devicon](https://devicon.dev/) (MIT license).
 
 ## Deploy to GitHub Pages
 
