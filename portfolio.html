@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f5ed">
+    <meta name="description" content="An interactive creative portfolio with tactile, clickable 3D cards.">
+    <title>Selected Works — Creative Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="portfolio.css">
+    <script src="portfolio.js" defer></script>
+  </head>
+  <body class="portfolio-page">
+    <header class="portfolio-nav">
+      <a class="portfolio-brand" href="#top"><span class="brand-symbol">N.</span><span>YOUR NAME <small>PORTFOLIO / 2026</small></span></a>
+      <nav aria-label="Main navigation">
+        <a href="#work">Work</a>
+        <a href="#profile">Profile</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="play-link" href="index.html">PLAY CO-OP <span>↗</span></a>
+    </header>
+
+    <main id="top" class="portfolio-layout">
+      <aside class="portfolio-sidebar">
+        <button class="portfolio-card portrait-card tilt-card" type="button"
+          data-title="A little introduction"
+          data-detail="This is your introduction. Replace YOUR NAME, your role and this short bio with your own details. Every portfolio frame tilts with your pointer and opens when clicked.">
+          <span class="card-index">01 / INTRO</span>
+          <span class="portrait-art" aria-hidden="true">
+            <svg viewBox="0 0 240 250" role="presentation">
+              <rect x="16" y="20" width="91" height="95" rx="20" fill="#d1df25"/>
+              <rect x="124" y="20" width="100" height="95" rx="20" fill="#d1df25"/>
+              <rect x="16" y="126" width="91" height="99" rx="20" fill="#d1df25"/>
+              <path d="M72 216c5-37 17-57 47-62l8-1c28 5 44 24 49 63H72Z" fill="#272720"/>
+              <path d="M92 153c4-19 13-28 31-28 19 0 29 12 32 30l-13 21h-39l-11-23Z" fill="#ddb995"/>
+              <path d="M92 157c-7-21-1-45 11-57 11-11 35-12 48-1 13 12 17 34 10 56l-10-12-3-24c-13 12-29 17-48 17l-1 12-7 9Z" fill="#181b19"/>
+              <path d="m96 164 26 15 28-15 16 14 8 38H69l9-37 18-15Z" fill="#40483a"/>
+              <path d="m106 172 16 10 17-10 10 44H96l10-44Z" fill="#ece8da"/>
+              <path d="m80 171 20 14-12 31H70l10-45Zm83 0-19 14 12 31h18l-11-45Z" fill="#22251f"/>
+              <circle cx="111" cy="139" r="2" fill="#29251f"/>
+              <circle cx="139" cy="139" r="2" fill="#29251f"/>
+              <path d="M113 151q11 8 23 0" fill="none" stroke="#9c6c55" stroke-width="2" stroke-linecap="round"/>
+              <path d="m101 128 14-4m13 0 14 4" stroke="#27231f" stroke-width="3" stroke-linecap="round"/>
+              <path d="m98 183 15 9m29-9-15 9" stroke="#c4bd9e" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="portrait-caption"><span class="portrait-arrow">↗</span><span>CREATIVE DEVELOPER<br>DESIGNER & BUILDER</span></span>
+        </button>
+
+        <div class="identity">
+          <span class="availability"><i></i> AVAILABLE FOR SELECT PROJECTS</span>
+          <h1>Hello, I’m<br><span>Your Name.</span></h1>
+          <p class="identity-copy">I turn curious ideas into thoughtful digital experiences—with a little extra dimension.</p>
+        </div>
+
+        <section class="portfolio-section" aria-labelledby="education-heading">
+          <div class="section-heading"><h2 id="education-heading">Education</h2><span>02</span></div>
+          <button class="portfolio-card timeline-card tilt-card" type="button"
+            data-title="Education"
+            data-detail="Add a degree, school, course, or anything else that shaped your practice. This card is clickable and can hold as much detail as you need.">
+            <span class="timeline-entry"><span class="date-pill">YOUR YEARS</span><strong>Your degree or course</strong><small>Your school · Your city</small></span>
+            <span class="timeline-entry"><span class="date-pill">ANOTHER YEAR</span><strong>Another thing you learned</strong><small>Online · In your own time</small></span>
+            <span class="card-hint">CLICK TO EXPLORE <b>↗</b></span>
+          </button>
+        </section>
+
+        <section class="portfolio-section" aria-labelledby="skills-heading">
+          <div class="section-heading"><h2 id="skills-heading">Skills</h2><span>03</span></div>
+          <button class="portfolio-card meter-card tilt-card" type="button"
+            data-title="Skills"
+            data-detail="Make these skill names and confidence levels your own. The bars are visual accents, not an assessment.">
+            <span class="meter-row"><b class="app-icon app-ps">Ps</b><span>Visual design</span><i><em style="--level:91%"></em></i></span>
+            <span class="meter-row"><b class="app-icon app-ai">✳</b><span>Illustration</span><i><em style="--level:82%"></em></i></span>
+            <span class="meter-row"><b class="app-icon app-fi">F</b><span>Figma</span><i><em style="--level:88%"></em></i></span>
+            <span class="meter-row"><b class="app-icon app-code">&lt;/&gt;</b><span>Creative code</span><i><em style="--level:76%"></em></i></span>
+            <span class="meter-row"><b class="app-icon app-3d">3D</b><span>Blender</span><i><em style="--level:69%"></em></i></span>
+            <span class="card-hint">CLICK TO EXPLORE <b>↗</b></span>
+          </button>
+        </section>
+
+        <section class="portfolio-section" aria-labelledby="expertise-heading">
+          <div class="section-heading"><h2 id="expertise-heading">Expertise</h2><span>04</span></div>
+          <button class="portfolio-card expertise-card tilt-card" type="button"
+            data-title="Areas of expertise"
+            data-detail="Show the kind of challenges you enjoy solving. These sample disciplines can be renamed, removed or expanded.">
+            <span class="expertise-row"><b>◉</b> Product & UI design <i><em style="--level:90%"></em></i></span>
+            <span class="expertise-row"><b>▧</b> Interactive web <i><em style="--level:85%"></em></i></span>
+            <span class="expertise-row"><b>⌘</b> Game experiences <i><em style="--level:82%"></em></i></span>
+            <span class="expertise-row"><b>✳</b> Visual storytelling <i><em style="--level:77%"></em></i></span>
+            <span class="expertise-row"><b>↗</b> Creative direction <i><em style="--level:71%"></em></i></span>
+            <span class="card-hint">CLICK TO EXPLORE <b>↗</b></span>
+          </button>
+        </section>
+
+        <section class="portfolio-section" aria-labelledby="cert-heading">
+          <div class="section-heading"><h2 id="cert-heading">Certifications</h2><span>05</span></div>
+          <button class="portfolio-card timeline-card compact-card tilt-card" type="button"
+            data-title="Certifications"
+            data-detail="Add certificates, awards, publications, or other milestones. Delete this card if it does not fit your story.">
+            <span class="timeline-entry"><span class="date-pill">YEAR</span><strong>Your certification</strong><small>Issuing organization · Location</small></span>
+            <span class="timeline-entry"><span class="date-pill">YEAR</span><strong>Your next milestone</strong><small>Issuing organization · Location</small></span>
+            <span class="card-hint">CLICK TO EXPLORE <b>↗</b></span>
+          </button>
+        </section>
+      </aside>
+
+      <div class="portfolio-main">
+        <section class="top-grid">
+          <div class="portfolio-section portfolio-section-top" id="work">
+            <div class="section-heading"><h2>Selected work</h2><span>06</span></div>
+            <button class="portfolio-card work-card tilt-card" type="button"
+              data-title="Last Stand — Online Co-op"
+              data-detail="A browser-playable, two-player co-op survival shooter. Create a room, share the six-character invite code, and fight escalating enemy waves together. Built with Canvas, vanilla JavaScript and peer-to-peer WebRTC.">
+              <span class="work-overline">FEATURED PROJECT · 2026</span>
+              <span class="work-art" aria-hidden="true"><span class="work-grid"></span><span class="work-soldier">✦</span><span class="work-glow"></span><span class="work-stamp">LS<br>07</span></span>
+              <span class="work-title-row"><strong>Last Stand</strong><span>ONLINE CO-OP ↗</span></span>
+              <span class="work-description">An arcade warzone built for two.</span>
+              <span class="card-hint">CLICK TO VIEW CASE STUDY <b>↗</b></span>
+            </button>
+          </div>
+
+          <section class="portfolio-section" id="contact" aria-labelledby="contact-heading">
+            <div class="section-heading"><h2 id="contact-heading">Say hello</h2><span>07</span></div>
+            <button class="portfolio-card contact-card tilt-card" type="button"
+              data-title="Let’s make something"
+              data-detail="Add your preferred email, social links and location here. You can also link your project and résumé cards directly from this page.">
+              <span class="contact-intro">GOOD WORK STARTS<br>WITH A CONVERSATION.</span>
+              <span class="contact-row"><b>↗</b><span><small>EMAIL</small><strong>ADD YOUR EMAIL</strong></span></span>
+              <span class="contact-row"><b>◎</b><span><small>SOCIAL</small><strong>YOUR SOCIAL HANDLE</strong></span></span>
+              <span class="contact-row"><b>⌖</b><span><small>BASED IN</small><strong>YOUR CITY, YOUR COUNTRY</strong></span></span>
+              <span class="card-hint">CLICK TO ADD YOUR DETAILS <b>↗</b></span>
+            </button>
+          </section>
+        </section>
+
+        <section class="portfolio-section" id="profile" aria-labelledby="profile-heading">
+          <div class="section-heading"><h2 id="profile-heading">Profile</h2><span>08</span></div>
+          <button class="portfolio-card profile-card tilt-card" type="button"
+            data-title="Profile"
+            data-detail="Replace this introduction with a few sentences in your own voice. What do you make? Who do you make it for? What makes your approach different?">
+            <span class="profile-kicker">DESIGN-LED. HUMAN-CENTERED. ALWAYS CURIOUS.</span>
+            <span class="profile-copy">I’m a <strong>designer and creative developer</strong> who believes digital spaces should feel as good as they look. I bring strategy, craft and a touch of play to every screen I make.</span>
+            <span class="profile-foot"><span>THOUGHTFUL BY DESIGN</span><span>BUILT TO BE FELT ↗</span></span>
+            <span class="card-hint">CLICK TO READ MORE <b>↗</b></span>
+          </button>
+        </section>
+
+        <section class="portfolio-section" aria-labelledby="experience-heading">
+          <div class="section-heading"><h2 id="experience-heading">Experience</h2><span>09</span></div>
+          <button class="portfolio-card experience-card tilt-card" type="button"
+            data-title="Experience"
+            data-detail="List your roles from most recent to earliest. Add measurable outcomes and what you learned—not just a list of tasks.">
+            <span class="experience-entry"><span class="entry-top"><span><strong>Your latest role</strong><small>Your studio or company</small></span><span class="date-pill">YEAR — NOW</span></span><span class="entry-copy">Tell the story of what you shaped, who you worked with, and the impact you made.</span><span class="entry-mark">01</span></span>
+            <span class="experience-entry"><span class="entry-top"><span><strong>Another chapter</strong><small>Another team or client</small></span><span class="date-pill">YEAR — YEAR</span></span><span class="entry-copy">Share one memorable project or result. Keep it specific, clear and human.</span><span class="entry-mark">02</span></span>
+            <span class="experience-entry"><span class="entry-top"><span><strong>A place to grow</strong><small>Early-career role or project</small></span><span class="date-pill">YEAR — YEAR</span></span><span class="entry-copy">Show how your experience grew into the kind of creative you are today.</span><span class="entry-mark">03</span></span>
+            <span class="card-hint">CLICK TO EXPLORE <b>↗</b></span>
+          </button>
+        </section>
+
+        <section class="portfolio-section" aria-labelledby="interests-heading">
+          <div class="section-heading"><h2 id="interests-heading">Outside the pixels</h2><span>10</span></div>
+          <div class="interest-grid">
+            <button class="portfolio-card interest-card tilt-card" type="button" data-title="Football" data-detail="The best ideas happen after you step away from the screen. Add something you love doing here."><span>◎</span><strong>Football</strong><small>THE BEAUTIFUL GAME</small></button>
+            <button class="portfolio-card interest-card tilt-card" type="button" data-title="Making things" data-detail="Share the side projects, experiments and creative rituals that keep you curious."><span>▧</span><strong>Making things</strong><small>ALWAYS EXPERIMENTING</small></button>
+            <button class="portfolio-card interest-card tilt-card" type="button" data-title="Good stories" data-detail="Books, films, music, podcasts: what keeps you inspired?"><span>▤</span><strong>Good stories</strong><small>ONE MORE CHAPTER</small></button>
+          </div>
+        </section>
+
+        <section class="bottom-grid">
+          <section class="portfolio-section">
+            <div class="section-heading"><h2>Kind words</h2><span>11</span></div>
+            <button class="portfolio-card quote-card tilt-card" type="button"
+              data-title="Kind words"
+              data-detail="Replace this with a real quote from someone you have worked with—or remove the card until you have one.">
+              <span class="quote-mark">“</span><blockquote>“A thoughtful placeholder for the words someone kind will say about working with you.”</blockquote>
+              <span class="quote-author"><i></i><span><strong>Someone you worked with</strong><small>THEIR ROLE · THEIR COMPANY</small></span></span>
+              <span class="card-hint">CLICK TO PERSONALIZE <b>↗</b></span>
+            </button>
+          </section>
+          <section class="portfolio-section">
+            <div class="section-heading"><h2>Find me around</h2><span>12</span></div>
+            <button class="portfolio-card social-card tilt-card" type="button"
+              data-title="Around the web"
+              data-detail="Add real links to your professional network, design portfolio, code profile or whichever places you share your work.">
+              <span><b>in</b> LinkedIn <i>↗</i></span><span><b>Be</b> Behance <i>↗</i></span><span><b>&lt;/&gt;</b> GitHub <i>↗</i></span>
+              <span class="card-hint">CLICK TO ADD YOUR LINKS <b>↗</b></span>
+            </button>
+          </section>
+        </section>
+
+        <footer class="portfolio-footer"><span>DESIGNED WITH INTENTION. BUILT WITH A LITTLE WONDER.</span><span>YOUR NAME © 2026</span></footer>
+      </div>
+    </main>
+
+    <dialog class="detail-dialog" id="detail-dialog" aria-labelledby="dialog-title">
+      <form method="dialog"><button class="dialog-close" aria-label="Close details">×</button></form>
+      <span class="dialog-eyebrow">A CLOSER LOOK <i>↗</i></span>
+      <h2 id="dialog-title"></h2>
+      <p id="dialog-copy"></p>
+      <span class="dialog-note">MOVE YOUR POINTER OVER A CARD TO SEE IT COME ALIVE.</span>
+    </dialog>
+    <div class="cursor-glow" aria-hidden="true"></div>
+  </body>
+</html>

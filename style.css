@@ -21,6 +21,9 @@ button { font: inherit; }
 .brand-light { color: var(--lime); }
 .topbar-center, .sound-toggle, .bottom-bar { font-size: 10px; letter-spacing: .12em; }
 .topbar-center { color: #aab09f; }
+.topbar-actions { display: flex; align-items: center; gap: 14px; }
+.portfolio-link { color: var(--lime); font-size: 9px; letter-spacing: .09em; text-decoration: none; }
+.portfolio-link:hover { color: #e1f59d; }
 .live-dot { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px #e4594770; vertical-align: 1px; animation: blink 1.4s infinite; }
 .topbar-divider { padding: 0 8px; color: #515849; }
 .sound-toggle { border: 0; background: transparent; color: var(--muted); cursor: pointer; }
@@ -100,6 +103,8 @@ kbd { padding: 3px 5px; border: 1px solid #41483a; color: #d4d7ca; font: 9px "DM
   .game-shell { width: 100%; min-height: 100svh; display: flex; flex-direction: column; }
   .topbar { min-height: 50px; padding: 0 14px; }
   .topbar-center { font-size: 7px; }
+  .topbar-actions { gap: 7px; }
+  .portfolio-link { font-size: 7px; }
   .brand { font-size: 14px; }
   .brand-mark { width: 25px; height: 25px; }
   .sound-toggle { font-size: 8px; }

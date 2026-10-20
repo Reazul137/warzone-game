@@ -17,6 +17,10 @@ Both players share one arena, wave progression, and elimination score, with sepa
 
 Online rooms use PeerJS for WebRTC signaling and direct peer-to-peer data. Both players need an internet connection and a browser that permits WebRTC. PeerJS is loaded from its CDN. If clipboard access is blocked, the share text is selected in a manual-copy field.
 
+## Interactive portfolio
+
+Open [`portfolio.html`](portfolio.html) for a responsive, reference-inspired portfolio page. Each framed section is a clickable card with a subtle pointer-driven 3D tilt and a detail dialog. The page is a customizable template; replace the sample name, biography, education, contact and experience text with your own.
+
 ## Deploy to GitHub Pages
 
 The workflow in `.github/workflows/pages.yml` deploys the static site on each push to `main` and supports manual runs. In the repository's **Settings → Pages**, set the build and deployment source to **GitHub Actions**. After the first successful workflow run, GitHub Pages will publish the game at the repository's Pages URL.
